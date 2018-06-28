@@ -19,7 +19,7 @@ class BSEvec(object):
         self._hidden = hidden
         self._file = None
         self._default_var_names = ['v' + str(idim) 
-                                   for idim in xrange(self.ndim)]
+                                   for idim in range(self.ndim)]
 
     def _open_file(self, filename):
         self._file = open(filename, 'w')
@@ -54,7 +54,7 @@ class BSEvec(object):
 
         self._open_file(filename)
         self._write_tec_header('BSE output', var_names)
-        for ind in xrange(self.size):
+        for ind in range(self.size):
             self._write_line(self.array[ind, :])
         self._close_file()
 
@@ -76,7 +76,7 @@ class BSEvecStr(BSEvec):
         self.surfs = []
         if surf_sizes is not None:
             ind1, ind2 = 0, 0
-            for isurf in xrange(surf_sizes.shape[0]):
+            for isurf in range(surf_sizes.shape[0]):
                 num_u, num_v = surf_sizes[isurf, :]
                 ind2 += num_u * num_v
                 surf = self.array[ind1:ind2]
@@ -96,15 +96,15 @@ class BSEvecStr(BSEvec):
 
         self._open_file(filename)
         self._write_tec_header('BSE output', var_names)
-        for isurf in xrange(len(self.surfs)):
+        for isurf in range(len(self.surfs)):
             if not self._hidden[isurf]:
                 surf = self.surfs[isurf]
                 num_u, num_v = surf.shape[:2]
                 self._write('zone i='+str(num_u) + \
                             ', j=' + str(num_v) + \
                             ', DATAPACKING=POINT\n')
-                for ind_v in xrange(num_v):
-                    for ind_u in xrange(num_u):
+                for ind_v in range(num_v):
+                    for ind_u in range(num_u):
                         self._write_line(surf[ind_u, ind_v, :])
         self._close_file()
 
@@ -118,8 +118,8 @@ class BSEvecStr(BSEvec):
         self._write('solid model\n')
         for surf in self.surfs:
             num_u, num_v = surf.shape[:2]
-            for ind_v in xrange(num_v - 1):
-                for ind_u in xrange(num_u - 1):
+            for ind_v in range(num_v - 1):
+                for ind_u in range(num_u - 1):
                     pt1 = surf[ind_u, ind_v+1, :]
                     pt2 = surf[ind_u, ind_v, :]
                     pt3 = surf[ind_u+1, ind_v, :]
@@ -149,7 +149,7 @@ class BSEvecStr(BSEvec):
         ds = [[],[]]
         Cs = []
 
-        for isurf in xrange(len(self.surfs)):
+        for isurf in range(len(self.surfs)):
             if not self._hidden[isurf]:
                 ku = self._bse.get_bspline_option('order', isurf, 'u')
                 kv = self._bse.get_bspline_option('order', isurf, 'v')

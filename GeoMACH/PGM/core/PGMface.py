@@ -58,8 +58,8 @@ class PGMface(PGMobject):
         self._num_cp_total = {'u': 0,
                               'v': 0}
         self._surf_indices = numpy.zeros((num_i, num_j), int, order='F')
-        for ind_j in xrange(num_j):
-            for ind_i in xrange(num_i):
+        for ind_j in range(num_j):
+            for ind_i in range(num_i):
                 self.surfs[ind_i, ind_j] = PGMsurf()
 
     def _set_bspline_option(self, option, axis, vals):
@@ -77,8 +77,8 @@ class PGMface(PGMobject):
         num_surf = self._num_surf
         vals = vals * num_surf[axis] if len(vals) == 1 else vals
 
-        for ind_j in xrange(num_surf['v']):
-            for ind_i in xrange(num_surf['u']):
+        for ind_j in range(num_surf['v']):
+            for ind_i in range(num_surf['u']):
                 isurf = self._surf_indices[ind_i, ind_j]
                 if isurf != -1:
                     if axis == 'u':
@@ -116,8 +116,8 @@ class PGMface(PGMobject):
         num_surf = self._num_surf
         surf_inds = self._surf_indices
 
-        for ind_j in xrange(num_surf['v']):
-            for ind_i in xrange(num_surf['u']):
+        for ind_j in range(num_surf['v']):
+            for ind_i in range(num_surf['u']):
                 isurf = surf_inds[ind_i, ind_j]
                 if isurf != -1:
                     for dim in ['u', 'v']:
@@ -150,8 +150,8 @@ class PGMface(PGMobject):
         num_surf = self._num_surf
         surf_inds = self._surf_indices
 
-        for ind_j in xrange(num_surf['v']):
-            for ind_i in xrange(num_surf['u']):
+        for ind_j in range(num_surf['v']):
+            for ind_i in range(num_surf['u']):
                 if surf_inds[ind_i, ind_j] != -1:
                     surf = self.surfs[ind_i, ind_j]
                     data = surf.vec_data['df_surf']
@@ -217,12 +217,12 @@ class PGMface(PGMobject):
         vals_list, rows_list, cols_list = [], [], []
 
         v_start, v_end = 0, 0
-        for ind_j in xrange(self._num_surf['v']):
+        for ind_j in range(self._num_surf['v']):
             num_v = self._num_cp_list['v'][ind_j]
             v_end += num_v
 
             u_start, u_end = 0, 0
-            for ind_i in xrange(self._num_surf['u']):
+            for ind_i in range(self._num_surf['u']):
                 num_u = self._num_cp_list['u'][ind_i]
                 u_end += num_u
 

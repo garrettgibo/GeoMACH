@@ -52,7 +52,7 @@ class PGMinterpolant(PGMcomponent):
                     vals = self.normals[fname][1:-1, 1:-1, :].flatten() #We cannot apply the normal disturbance to the wireframe points. Otherwise, cp_coons would be disturbed twice as we will add a disturbance over an already disturbed Coons patch. The wireframe points will be regenerated with the averaging.
                     rows = face.vec_inds['cp_prim'][1:-1, 1:-1, :].flatten()
                     cols = numpy.zeros((num_u-2, num_v-2, 3), int)
-                    for ind in xrange(3):
+                    for ind in range(3):
                         cols[:, :, ind] = props['shN', fname].vec_inds['prop'][1:-1, 1:-1] #Use the same normal weight for three directions (x, y, and z)
                     cols = cols.flatten()
 
@@ -60,7 +60,7 @@ class PGMinterpolant(PGMcomponent):
                     rows_list.append(rows)
                     cols_list.append(cols)
 
-                    for ind in xrange(3):
+                    for ind in range(3):
                         face.vec_data['cp_prim'][1:-1, 1:-1, ind] = self.normals[fname][1:-1, 1:-1, ind] * \
                                                                     props['shN', fname].vec_data['prop'][1:-1, 1:-1]
             return vals_list, rows_list, cols_list
@@ -97,7 +97,7 @@ class PGMinterpolant(PGMcomponent):
             cross = numpy.cross(self._bse.vec[name + '_du'].array, self._bse.vec[name + '_dv'].array)
             norms = numpy.sqrt(numpy.sum(cross**2,axis=1))
 
-            for ind in xrange(3):
+            for ind in range(3):
                 cross[:, ind] /= norms
 
             self.normals[face._name] = cross.reshape((num_u, num_v, 3), order='C')

@@ -9,8 +9,8 @@ def face(nu, nv, ru, rv, du, dv, d):
     P = numpy.zeros((nu, nv, 3))
     linu = numpy.linspace(-ru, ru, nu)
     linv = numpy.linspace(-rv, rv, nv)
-    for i in xrange(nu):
-        for j in xrange(nv):
+    for i in range(nu):
+        for j in range(nv):
             P[i, j, du] = linu[i]
             P[i, j, dv] = linv[j]
             P[i, j, -du-dv] = d
@@ -34,13 +34,13 @@ surf.set_bspline_option('num_pt', 0, 'u', 50)
 surf.set_bspline_option('num_pt', 0, 'v', 50)
 surf.set_bspline_option('num_pt', 2, 'u', 50)
 surf.set_bspline_option('num_pt', 2, 'v', 50)
-#for k in xrange(nsurf):
+#for k in range(nsurf):
 #    surf.set_diff_surf(True, k)
 surf.assemble()
 surf.print_info()
 
 Cs = cube(4, 4, 4, 1, 1, 1)
-for k in xrange(nsurf):
+for k in range(nsurf):
     surf.vec['df_str'](k)[:, :, :] = Cs[k]
 surf.apply_jacobian('df', 'd(df)/d(df_str)', 'df_str')
 surf.apply_jacobian('cp', 'd(cp)/d(df)', 'df')
@@ -62,7 +62,7 @@ surf.vec['pt_str'].export_tec_str()
 
 if 0:
     Ps = []
-    for k in xrange(nsurf):
+    for k in range(nsurf):
         Ps.append(surf.vec['pt_str'](k))
 
     fig = pylab.figure()

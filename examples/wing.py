@@ -66,3 +66,5 @@ if __name__ == '__main__':
     exit()
     for num in [20]:#[5, 10, 20, 50, 100]:
         pgm.meshStructure(num, 'wing_'+str(num))
+
+

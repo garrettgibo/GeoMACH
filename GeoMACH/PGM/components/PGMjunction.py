@@ -61,10 +61,10 @@ class PGMjunction(PGMinterpolant):
         self._side = side
 
         #Check if the user gave a single weight for all the edges or if he specified one weight for each edge
-	self._fweight = numpy.zeros(6)
-	self._mweight = numpy.zeros(6)
-	self._fweight[:] = fweight
-	self._mweight[:] = mweight
+        self._fweight = numpy.zeros(6)
+        self._mweight = numpy.zeros(6)
+        self._fweight[:] = fweight
+        self._mweight[:] = mweight
 
         self._num_surf_wing = self._mcomp.faces['upp']._num_surf['u']
 
@@ -88,7 +88,7 @@ class PGMjunction(PGMinterpolant):
         face = self.faces['']
         face.set_diff_surf(True)
         
-        for ind_j in xrange(1, 1 + self._num_surf_wing):
+        for ind_j in range(1, 1 + self._num_surf_wing):
             face.set_diff_surf(False, ind_i=0, ind_j=ind_j, ind_u=2)
             face.set_diff_surf(False, ind_i=-1, ind_j=ind_j, ind_u=0)
 
@@ -96,11 +96,11 @@ class PGMjunction(PGMinterpolant):
         face.set_diff_surf(False, ind_i=-1, ind_j=0, ind_u=0, ind_v=2)
         face.set_diff_surf(False, ind_i=0, ind_j=-1, ind_u=2, ind_v=0)
         face.set_diff_surf(False, ind_i=-1, ind_j=-1, ind_u=0, ind_v=0)
-	
-        for ind_j in xrange(2 + self._num_surf_wing):
+        
+        for ind_j in range(2 + self._num_surf_wing):
             face.set_diff_surf(False, ind_i=0, ind_j=ind_j, ind_u=0)
             face.set_diff_surf(False, ind_i=-1, ind_j=ind_j, ind_u=2)
-	for ind_i in [0,-1]:
+        for ind_i in [0,-1]:
             face.set_diff_surf(False, ind_i=ind_i, ind_j=0, ind_v=0)
             face.set_diff_surf(False, ind_i=ind_i, ind_j=-1, ind_v=2)
 
@@ -119,8 +119,8 @@ class PGMjunction(PGMinterpolant):
     def set_hidden_surfaces(self):
         loc = self._loc
         fInds = self._rotate(self._fcomp._surf_indices)
-        for ind_v in xrange(2 + self._num_surf_wing):
-            for ind_u in xrange(2):
+        for ind_v in range(2 + self._num_surf_wing):
+            for ind_u in range(2):
                 isurf = fInds[ind_u + loc['u'], ind_v + loc['v']]
                 self._bse.hidden[isurf] = True
 

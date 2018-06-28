@@ -38,7 +38,11 @@ class PGMprimitive(PGMcomponent):
     def assemble_sizes(self, bse):
         super(PGMprimitive, self).assemble_sizes(bse)
 
-        num = self.faces.values()[0]._num_cp_total['v']
+        num = 0
+        for val in self.faces.values():
+            num = val._num_cp_total['v']
+            break
+
         props = self.props
         props['scl'].assemble_sizes(num, 3)
         props['pos'].assemble_sizes(num, 3)
@@ -74,7 +78,7 @@ class PGMprimitive(PGMcomponent):
                 sh_inds = {}
                 
                 pnames = ['shX', 'shY', 'shZ']
-                for ind in xrange(3):
+                for ind in range(3):
                     pname = pnames[ind]
                     sh_data[pname] \
                         = props[pname, fname].vec_data['prop'] \

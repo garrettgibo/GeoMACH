@@ -26,7 +26,7 @@ class PGMwing(PGMprimitive):
         num_z : ``float``
            Number of surfaces in the span-wise direction
         left_closed, right_closed : ``bool``
-           ``True`` if closed and 
+           ``True`` if closed and
            ``False`` if attached to another component
         """
         super(PGMwing, self).__init__()
@@ -62,9 +62,9 @@ class PGMwing(PGMprimitive):
             self.set_airfoil()
 
     def set_diff(self):
-        faces = self.faces.values()
-        for ind in xrange(2):
-            face = self.faces.values()[ind]
+        faces = [self.faces[f] for f in self.faces]
+        for ind in range(2):
+            face = faces[ind]
              #C1 Everywhere
             face.set_diff_surf(True)
             #C0 trailing edge
@@ -118,15 +118,15 @@ class PGMwing(PGMprimitive):
         nsurf = ns.shape[0]
 
         Ps = []
-        for i in xrange(nsurf):
+        for i in range(nsurf):
             P = numpy.zeros((ns[i]+1,4,3), order='F')
-            for j in xrange(4):
+            for j in range(4):
                 P[:,j,:] = P0[sum(ns[:i]):sum(ns[:i+1])+1,:]
                 P[:,j,2] = j
             Ps.append(P)
 
         bse = BSEmodel(Ps)
-        for i in xrange(nsurf):
+        for i in range(nsurf):
             bse.set_bspline_option('num_cp', i, 'u', ms[i]+1)
             bse.set_bspline_option('num_pt', i, 'u', ns[i]+1)
             bse.set_bspline_option('num_pt', i, 'v', 4)
@@ -135,15 +135,15 @@ class PGMwing(PGMprimitive):
         pt = bse.vec['pt_str'].array
         jac = bse.jac['d(pt_str)/d(cp_str)']
 
-        for i in xrange(nsurf):
+        for i in range(nsurf):
             bse.vec['pt_str'].surfs[i][:,:,:] = Ps[i]
         mtx = jac.T.dot(jac)
         rhs = jac.T.dot(pt)
-        for dim in xrange(3):
+        for dim in range(3):
             cp[:, dim] = scipy.sparse.linalg.cg(mtx, rhs[:, dim])[0]
 
         Q = numpy.zeros((sum(ms) + 1,3),order='F')
-        for i in xrange(nsurf):
+        for i in range(nsurf):
             Q[sum(ms[:i]):sum(ms[:i+1])+1,:] = \
                 bse.vec['cp_str'].surfs[i][:,0,:]
         return Q
@@ -162,9 +162,9 @@ class PGMwing(PGMprimitive):
             P[:,j,2] = j
         bse = BSEmodel([P])
 
-        bse.set_bspline_option('num_pt', 0, 'u', 
+        bse.set_bspline_option('num_pt', 0, 'u',
                                airfoil.shape[0])
-        bse.set_bspline_option('num_cp', 0, 'u', 
+        bse.set_bspline_option('num_cp', 0, 'u',
                                int(airfoil.shape[0]/3))
         bse.set_bspline_option('num_pt', 0, 'v', 4)
         bse.set_bspline_option('num_cp', 0, 'v', 4)
@@ -176,7 +176,7 @@ class PGMwing(PGMprimitive):
         bse.vec['pt_str'].surfs[0][:, :, :] = P
         mtx = jac.T.dot(jac)
         rhs = jac.T.dot(pt)
-        for dim in xrange(3):
+        for dim in range(3):
             cp[:, dim] = scipy.sparse.linalg.cg(mtx, rhs[:, dim])[0]
         fit = numpy.array(cp)
 
@@ -205,10 +205,10 @@ class PGMwing(PGMprimitive):
         max_cmb = int(naca[0]) / 100.0
         pos_cmb = int(naca[1]) / 10.0
         thickness = int(naca[2:4]) / 100.0
-        x = 0.5 * (1 - numpy.cos(numpy.pi * 
+        x = 0.5 * (1 - numpy.cos(numpy.pi *
                                  numpy.linspace(0, 1, num)))
-        y_sym = thickness/0.2 * (0.2969*x**0.5 - 0.1260*x - 
-                                 0.3516*x**2 + 0.2843*x**3 - 
+        y_sym = thickness/0.2 * (0.2969*x**0.5 - 0.1260*x -
+                                 0.3516*x**2 + 0.2843*x**3 -
                                  0.1036*x**4)
         y_cmb = numpy.zeros(num)
         if pos_cmb != 0:
@@ -248,164 +248,164 @@ class PGMwing(PGMprimitive):
         return {'upp': upper, 'low': lower}
 
     def add_thk_con(self, name, urange, vrange, factor):
-	self.funcs[name] = WingThicknessFunction(self, name, urange, vrange, factor)
+        self.funcs[name] = WingThicknessFunction(self, name, urange, vrange, factor)
 
 
 
 class WingFunction(object):
 
     def __init__(self, comp, name, urange, vrange, factor):
-	self.bse = comp._bse
-	self.comp = comp
-	self.name = name
-	self.num_u, self.num_v = len(urange), len(vrange)
-	self.factor = factor
+        self.bse = comp._bse
+        self.comp = comp
+        self.name = name
+        self.num_u, self.num_v = len(urange), len(vrange)
+        self.factor = factor
 
-	num_u, num_v = self.num_u, self.num_v
-	self.pt = numpy.zeros(2*num_u*num_v*3)
-	self.pt_array = self.pt.reshape((2,num_u,num_v,3), order='F')
+        num_u, num_v = self.num_u, self.num_v
+        self.pt = numpy.zeros(2*num_u*num_v*3)
+        self.pt_array = self.pt.reshape((2,num_u,num_v,3), order='F')
 
-	ni, nj = self.num_u, self.num_v
-	locations = {'u':numpy.zeros((ni,nj)), 'v':numpy.zeros((ni,nj))}
-	for i in range(ni):
-	    for j in range(nj):
-		locations['u'][i,j] = urange[i]
-		locations['v'][i,j] = vrange[j]
+        ni, nj = self.num_u, self.num_v
+        locations = {'u':numpy.zeros((ni,nj)), 'v':numpy.zeros((ni,nj))}
+        for i in range(ni):
+            for j in range(nj):
+                locations['u'][i,j] = urange[i]
+                locations['v'][i,j] = vrange[j]
 
-	face = self.comp.faces['upp']
+        face = self.comp.faces['upp']
 
         increments = {'upp': {'u': None, 'v': None}, 'low': {'u': None, 'v': None}}
-	for f in ['upp', 'low']:
-	    for d in ['u', 'v']:
-		n = face._num_surf[d]
-		increments[f][d] = numpy.zeros(n+1)
-		for i in xrange(n+1):
-		    increments[f][d][i] = sum(face._num_cp_list[d][:i]) / sum(face._num_cp_list[d])
-	    if f=='upp':
-		increments[f]['u'][:] = 1 - increments[f]['u'][::-1]
+        for f in ['upp', 'low']:
+            for d in ['u', 'v']:
+                n = face._num_surf[d]
+                increments[f][d] = numpy.zeros(n+1)
+                for i in range(n+1):
+                    increments[f][d][i] = sum(face._num_cp_list[d][:i]) / sum(face._num_cp_list[d])
+            if f=='upp':
+                increments[f]['u'][:] = 1 - increments[f]['u'][::-1]
 
-	surf = {'upp':numpy.zeros((ni,nj), dtype=int, order='F'), 'low':numpy.zeros((ni,nj), dtype=int, order='F')}
-	locs = {'upp':{'u':numpy.zeros((ni,nj), order='F'), 'v':numpy.zeros((ni,nj), order='F')}, 'low':{'u':numpy.zeros((ni,nj), order='F'), 'v':numpy.zeros((ni,nj), order='F')}}
+        surf = {'upp':numpy.zeros((ni,nj), dtype=int, order='F'), 'low':numpy.zeros((ni,nj), dtype=int, order='F')}
+        locs = {'upp':{'u':numpy.zeros((ni,nj), order='F'), 'v':numpy.zeros((ni,nj), order='F')}, 'low':{'u':numpy.zeros((ni,nj), order='F'), 'v':numpy.zeros((ni,nj), order='F')}}
 
 
-	loc_face = {'u': None, 'v': None}
-	for f in ['upp', 'low']:
-	    for i in range(ni):
-		for j in range(nj):
-		    if f=='upp':
-			loc_face['u'] = 1-locations['u'][i,j]
-			loc_face['v'] = locations['v'][i,j]
-		    else:
-			loc_face['u'] = locations['u'][i,j]
-			loc_face['v'] = locations['v'][i,j]
-		    loc_surf = {'u':-1, 'v':-1}
-		    for d in ['u', 'v']:
-			n = face._num_surf[d]
-			for k in range(n):
-			    if increments[f][d][k] <= loc_face[d] <= increments[f][d][k+1]:
-				locs[f][d][i,j] = (loc_face[d] - increments[f][d][k]) / \
-				    (increments[f][d][k+1] - increments[f][d][k])
-				loc_surf[d] = k
-		    if loc_surf['u'] == -1 or loc_surf['v'] == -1:
-			raise Exception('Invalid thickness constraint locations')
-		    ind = 0 if f=='upp' else 1
-		    surf[f][i,j] = self.comp.faces.values()[ind]._surf_indices[loc_surf['u'], loc_surf['v']]
+        loc_face = {'u': None, 'v': None}
+        for f in ['upp', 'low']:
+            for i in range(ni):
+                for j in range(nj):
+                    if f=='upp':
+                        loc_face['u'] = 1-locations['u'][i,j]
+                        loc_face['v'] = locations['v'][i,j]
+                    else:
+                        loc_face['u'] = locations['u'][i,j]
+                        loc_face['v'] = locations['v'][i,j]
+                    loc_surf = {'u':-1, 'v':-1}
+                    for d in ['u', 'v']:
+                        n = face._num_surf[d]
+                        for k in range(n):
+                            if increments[f][d][k] <= loc_face[d] <= increments[f][d][k+1]:
+                                locs[f][d][i,j] = (loc_face[d] - increments[f][d][k]) / \
+                                    (increments[f][d][k+1] - increments[f][d][k])
+                                loc_surf[d] = k
+                    if loc_surf['u'] == -1 or loc_surf['v'] == -1:
+                        raise Exception('Invalid thickness constraint locations')
+                    ind = 0 if f=='upp' else 1
+                    surf[f][i,j] = self.comp.faces.values()[ind]._surf_indices[loc_surf['u'], loc_surf['v']]
 
-	surf_flat = numpy.zeros(2*ni*nj)
-	locs_u_flat = numpy.zeros(2*ni*nj)
-	locs_v_flat = numpy.zeros(2*ni*nj)
+        surf_flat = numpy.zeros(2*ni*nj)
+        locs_u_flat = numpy.zeros(2*ni*nj)
+        locs_v_flat = numpy.zeros(2*ni*nj)
 
-	a = surf['upp'].flatten(order='F')
-	b = surf['low'].flatten(order='F')
-	for k in range(ni*nj):
-	    surf_flat[2*k] = a[k]
-	    surf_flat[2*k + 1] = b[k]
+        a = surf['upp'].flatten(order='F')
+        b = surf['low'].flatten(order='F')
+        for k in range(ni*nj):
+            surf_flat[2*k] = a[k]
+            surf_flat[2*k + 1] = b[k]
 
-	c = locs['upp']['u'].flatten(order='F')
-	d = locs['low']['u'].flatten(order='F')
-	for k in range(ni*nj):
-	    locs_u_flat[2*k] = c[k]
-	    locs_u_flat[2*k + 1] = d[k]
+        c = locs['upp']['u'].flatten(order='F')
+        d = locs['low']['u'].flatten(order='F')
+        for k in range(ni*nj):
+            locs_u_flat[2*k] = c[k]
+            locs_u_flat[2*k + 1] = d[k]
 
-	e = locs['upp']['v'].flatten(order='F')
-	f = locs['low']['v'].flatten(order='F')
-	for k in range(ni*nj):
-	    locs_v_flat[2*k] = e[k]
-	    locs_v_flat[2*k + 1] = f[k]
+        e = locs['upp']['v'].flatten(order='F')
+        f = locs['low']['v'].flatten(order='F')
+        for k in range(ni*nj):
+            locs_v_flat[2*k] = e[k]
+            locs_v_flat[2*k + 1] = f[k]
 
-	self.bse.add_jacobian('constr_pts', surf_flat, locs_u_flat, locs_v_flat, ndim=3)
-	J = self.bse.jac['d(constr_pts)/d(cp_str)']
+        self.bse.add_jacobian('constr_pts', surf_flat, locs_u_flat, locs_v_flat, ndim=3)
+        J = self.bse.jac['d(constr_pts)/d(cp_str)']
 
-#	self.bse.apply_jacobian('constr_pts', 'd(constr_pts)/d(cp_str)', 'cp_str')
-#	self.bse.vec['thickness'].export_tec_scatter()
-#	exit()
+#       self.bse.apply_jacobian('constr_pts', 'd(constr_pts)/d(cp_str)', 'cp_str')
+#       self.bse.vec['thickness'].export_tec_scatter()
+#       exit()
 
-	self.dpt_dcp = scipy.sparse.bmat(
+        self.dpt_dcp = scipy.sparse.bmat(
             [
                 [J, None, None],
                 [None, J, None],
                 [None, None, J]
             ],
             format = 'csc')
-	
+
 
     def initialize(self):
-	self.compute_all()
-	self.func0[:] = self.func[:]
+        self.compute_all()
+        self.func0[:] = self.func[:]
 
     def get_func(self):
-	self.compute_all()
-	return self.factor**2 * self.func0[:] - self.func[:]
+        self.compute_all()
+        return self.factor**2 * self.func0[:] - self.func[:]
 
 
 
 class WingThicknessFunction(WingFunction):
 
     def __init__(self, comp, name, urange, vrange, factor):
-	super(WingThicknessFunction, self).__init__(comp, name, urange, vrange, factor)
-	self.size = self.num_u * self.num_v
-	num_u, num_v = self.num_u, self.num_v
+        super(WingThicknessFunction, self).__init__(comp, name, urange, vrange, factor)
+        self.size = self.num_u * self.num_v
+        num_u, num_v = self.num_u, self.num_v
 
-	self.func = numpy.zeros(num_u*num_v)
-	self.func_array = self.func.reshape((num_u, num_v), order='F')
+        self.func = numpy.zeros(num_u*num_v)
+        self.func_array = self.func.reshape((num_u, num_v), order='F')
 
-	self.func0 = numpy.array(self.func)
+        self.func0 = numpy.array(self.func)
 
     def compute_all(self):
-	self.pt[:] = self.dpt_dcp.dot(self.bse.vec['cp_str'].array.reshape(3*self.bse.vec['cp_str'].size, order='F'))
-	num_u, num_v = self.num_u, self.num_v
+        self.pt[:] = self.dpt_dcp.dot(self.bse.vec['cp_str'].array.reshape(3*self.bse.vec['cp_str'].size, order='F'))
+        num_u, num_v = self.num_u, self.num_v
 
-	self.func_array[:,:] = 0.0
-	for k in xrange(3):
-	    self.func_array[:,:] += (self.pt_array[0,:,:,k] - self.pt_array[1,:,:,k])**2
-#	self.func_array[:,:] += self.pt_array[0,:,:,1]
+        self.func_array[:,:] = 0.0
+        for k in range(3):
+            self.func_array[:,:] += (self.pt_array[0,:,:,k] - self.pt_array[1,:,:,k])**2
+#       self.func_array[:,:] += self.pt_array[0,:,:,1]
 
 
     def get_jacobian(self):
-	self.compute_all()
-	num_u, num_v = self.num_u, self.num_v
+        self.compute_all()
+        num_u, num_v = self.num_u, self.num_v
 
-	nD = 6 * num_u * num_v
-	Da = numpy.zeros((2,num_u,num_v,3), order = 'F')
-	Di = numpy.zeros((2,num_u,num_v,3), dtype=int, order='F')
-	Dj = numpy.zeros((2,num_u,num_v,3), dtype=int, order='F')
+        nD = 6 * num_u * num_v
+        Da = numpy.zeros((2,num_u,num_v,3), order = 'F')
+        Di = numpy.zeros((2,num_u,num_v,3), dtype=int, order='F')
+        Dj = numpy.zeros((2,num_u,num_v,3), dtype=int, order='F')
 
-	pt_indices = numpy.array(numpy.linspace(0, 2*num_u*num_v*3-1, 2*num_u*num_v*3), int).reshape((2,num_u,num_v,3), order='F')
+        pt_indices = numpy.array(numpy.linspace(0, 2*num_u*num_v*3-1, 2*num_u*num_v*3), int).reshape((2,num_u,num_v,3), order='F')
 
-#	for f in [0]:
-#	    for k in [1]:
-#		Da[f,:,:,k] = -1
-#		Di[f,:,:,k] = numpy.linspace(0, num_u*num_v-1, num_u*num_v).reshape((num_u,num_v), order='F')
-#		Dj[f,:,:,k] = pt_indices[f,:,:,k]
-	for f in xrange(2):
-	    for k in xrange(3):
-		Da[f,:,:,k] = -2 * (self.pt_array[f,:,:,k] - self.pt_array[1-f,:,:,k])
-		Di[f,:,:,k] = numpy.linspace(0, num_u*num_v-1, num_u*num_v).reshape((num_u,num_v), order='F')
-		Dj[f,:,:,k] = pt_indices[f,:,:,k]
+#       for f in [0]:
+#           for k in [1]:
+#               Da[f,:,:,k] = -1
+#               Di[f,:,:,k] = numpy.linspace(0, num_u*num_v-1, num_u*num_v).reshape((num_u,num_v), order='F')
+#               Dj[f,:,:,k] = pt_indices[f,:,:,k]
+        for f in range(2):
+            for k in range(3):
+                Da[f,:,:,k] = -2 * (self.pt_array[f,:,:,k] - self.pt_array[1-f,:,:,k])
+                Di[f,:,:,k] = numpy.linspace(0, num_u*num_v-1, num_u*num_v).reshape((num_u,num_v), order='F')
+                Dj[f,:,:,k] = pt_indices[f,:,:,k]
 
-	Da = Da.reshape(2*num_u*num_v*3, order='F')
-	Di = Di.reshape(2*num_u*num_v*3, order='F')
-	Dj = Dj.reshape(2*num_u*num_v*3, order='F')
-	df_dpt = scipy.sparse.csr_matrix((Da, (Di, Dj)), shape=(num_u*num_v, 2*num_u*num_v*3))
+        Da = Da.reshape(2*num_u*num_v*3, order='F')
+        Di = Di.reshape(2*num_u*num_v*3, order='F')
+        Dj = Dj.reshape(2*num_u*num_v*3, order='F')
+        df_dpt = scipy.sparse.csr_matrix((Da, (Di, Dj)), shape=(num_u*num_v, 2*num_u*num_v*3))
         df_dcp = df_dpt * self.dpt_dcp
-	return df_dcp
+        return df_dcp

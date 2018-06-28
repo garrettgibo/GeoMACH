@@ -9,7 +9,7 @@ import numpy
 import time
 import scipy.sparse
 from GeoMACH.BSE import BSElib
-from BSEvec import BSEvecUns, BSEvecStr
+from .BSEvec import BSEvecUns, BSEvecStr
 
 
 class BSEmodel(object):
@@ -141,7 +141,7 @@ class BSEmodel(object):
         nsurf = len(initial_surfaces)
         surfaces = numpy.zeros((nsurf, 3, 3, 3), float, 'F')
 
-        for isurf in xrange(nsurf):
+        for isurf in range(nsurf):
             surface = initial_surfaces[isurf]
             num_u, num_v = surface.shape[:2]
             mid_u1 = int(numpy.floor((num_u - 1) / 2.0))
@@ -149,15 +149,15 @@ class BSEmodel(object):
             mid_v1 = int(numpy.floor((num_v - 1) / 2.0))
             mid_v2 = int(numpy.ceil((num_v - 1) / 2.0))
 
-            for ind_u in xrange(2):
-                for ind_v in xrange(2):
+            for ind_u in range(2):
+                for ind_v in range(2):
                     surfaces[isurf, -ind_u, -ind_v] = surface[-ind_u, -ind_v]
 
-            for ind_u in xrange(2):
+            for ind_u in range(2):
                 surfaces[isurf, -ind_u, 1] += 0.5 * surface[-ind_u, mid_v1] + \
                                               0.5 * surface[-ind_u, mid_v2]
 
-            for ind_v in xrange(2):
+            for ind_v in range(2):
                 surfaces[isurf, 1, -ind_v] += 0.5 * surface[mid_u1, -ind_v] + \
                                               0.5 * surface[mid_u2, -ind_v]
 
@@ -303,7 +303,7 @@ class BSEmodel(object):
         uder = [0, 1, 0, 2, 1, 0]
         vder = [0, 0, 1, 0, 1, 2]
         name = ['', '_du', '_dv', '_duu', '_duv', '_dvv']
-        for k in xrange(nbs_jac):
+        for k in range(nbs_jac):
             data, rows, cols \
                 = BSElib.computebmtx(nnz, num['surf'], num['group'], 
                                      uder[k], vder[k],
@@ -390,20 +390,20 @@ class BSEmodel(object):
         num = self._num
         size = self._size
 
-        print
-        print 'Topology information'
-        print '--------------------'
-        print '# surfaces: ', num['surf']
-        print '# edges:    ', num['edge']
-        print '# vertices: ', num['vert']
-        print '# groups:   ', num['group']
-        print
-        print 'Vector sizes (unique, structured)'
-        print '---------------------------------'
-        print '# free control points:', size['df'], size['df_str']
-        print '# control points:     ', size['cp'], size['cp_str']
-        print '# discretized points: ', size['pt'], size['pt_str']
-        print
+        # print
+        # print 'Topology information'
+        # print '--------------------'
+        # print '# surfaces: ', num['surf']
+        # print '# edges:    ', num['edge']
+        # print '# vertices: ', num['vert']
+        # print '# groups:   ', num['group']
+        # print
+        # print 'Vector sizes (unique, structured)'
+        # print '---------------------------------'
+        # print '# free control points:', size['df'], size['df_str']
+        # print '# control points:     ', size['cp'], size['cp_str']
+        # print '# discretized points: ', size['pt'], size['pt_str']
+        # print
 
     def initialize_vec(self, name, vec_type, ndim=1):
         vec = self.vec
@@ -439,7 +439,7 @@ class BSEmodel(object):
         vec2 = self.vec[vec2_name].array
 
         jac = self.jac[jac_name]
-        for ind in xrange(vec1.shape[1]):
+        for ind in range(vec1.shape[1]):
             vec2[:, ind] = jac.dot(vec1[:, ind])
 
     def compute_projection(self, name, pts, surf_pts=None, ndim=1):
@@ -490,7 +490,7 @@ class BSEmodel(object):
         quant = ['', '_du', '_dv']
         der_u = [0, 1, 0]
         der_v = [0, 0, 1]
-        for ind in xrange(3):
+        for ind in range(3):
             data, rows, cols \
                 = BSElib.computesmtx(der_u[ind], der_v[ind], 
                                      nnz, npt,

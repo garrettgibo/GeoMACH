@@ -25,7 +25,7 @@ def writeBDF(filename, nodes, quads, symm, quad_groups, group_names,
 
     new = numpy.zeros(len(quad_groups), int)
     k = 0
-    for i in xrange(1+numpy.max(quad_groups)):
+    for i in range(1+numpy.max(quad_groups)):
         if numpy.prod(i!=quad_groups) == 0:
             new += k * (i==quad_groups)
             k += 1
@@ -37,7 +37,7 @@ def writeBDF(filename, nodes, quads, symm, quad_groups, group_names,
     writeLine('CEND')
     writeLine('$')
     writeLine('BEGIN BULK')
-    for i in xrange(len(unique)):
+    for i in range(len(unique)):
         write('$CDSCRPT')
         write(str(i+1), l=16)
         name = group_names[unique[i]]
@@ -48,12 +48,12 @@ def writeBDF(filename, nodes, quads, symm, quad_groups, group_names,
     writeLine('$       grid data              0')
 
     used = numpy.zeros(nodes.shape[0], bool)
-    for k in xrange(4):
+    for k in range(4):
         used[quads[:,k]-1] = True
 
     index = 0
     node_indices = numpy.zeros(nodes.shape[0], int)
-    for k in xrange(nodes.shape[0]):
+    for k in range(nodes.shape[0]):
         if used[k]:
             index += 1
             node_indices[k] = index
