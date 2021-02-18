@@ -4,7 +4,7 @@ B-spline surface-modeling engine (BSE) vec class
 
 # pylint: disable=E1101
 
-from __future__ import division
+
 import numpy
 
 

@@ -3,7 +3,7 @@ GeoMACH shell class
 John Hwang, July 2014
 """
 # pylint: disable=E1101
-from __future__ import division
+
 import numpy
 import scipy.sparse
 import time
@@ -49,7 +49,7 @@ class PGMshell(PGMprimitive):
         self.faces['bt1'] = PGMface(num_z, num_x)
 
     def set_diff(self):
-        for face in self.faces.values():
+        for face in list(self.faces.values()):
             face.set_diff_surf(True)
 
     def initialize_props(self):
@@ -61,7 +61,7 @@ class PGMshell(PGMprimitive):
     def assemble_sizes(self, bse):
         super(PGMshell, self).assemble_sizes(bse)
 
-        num = self.faces.values()[0]._num_cp_total['v']
+        num = list(self.faces.values())[0]._num_cp_total['v']
         props = self.props
         props['thk'].assemble_sizes(num, 3)
 

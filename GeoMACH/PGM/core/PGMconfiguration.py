@@ -4,7 +4,7 @@ John Hwang, July 2014
 """
 # pylint: disable=E1101
 
-from __future__ import division
+
 import numpy
 import time
 import scipy.sparse
@@ -82,7 +82,7 @@ class PGMconfiguration(object):
         """
         self._define_comps()
 
-        for comp in self.comps.values():
+        for comp in list(self.comps.values()):
             comp.initialize_props()
 
         self._define_params()
@@ -172,26 +172,26 @@ class PGMconfiguration(object):
            computes constant Jacobians
         3. Runs PGM
         """
-        for comp in self.comps.values():
+        for comp in list(self.comps.values()):
             comp.assemble_sizes(self._bse)
 
         faces = [face
-                 for comp in self.comps.values()
-                 for face in comp.faces.values()]
+                 for comp in list(self.comps.values())
+                 for face in list(comp.faces.values())]
         surfs = [surf
-                 for comp in self.comps.values()
-                 for face in comp.faces.values()
-                 for surf in face.surfs.values()
+                 for comp in list(self.comps.values())
+                 for face in list(comp.faces.values())
+                 for surf in list(face.surfs.values())
                  if surf.get_vec_shape('') is not None]
         props = [prop
-                 for comp in self.comps.values()
-                 for prop in comp.props.values()]
+                 for comp in list(self.comps.values())
+                 for prop in list(comp.props.values())]
         params = [param
-                  for comp in self.comps.values()
-                  for prop in comp.props.values()
-                  for param in prop.params.values()]
-        comps = self.comps.values()
-        dvs = self.dvs.values()
+                  for comp in list(self.comps.values())
+                  for prop in list(comp.props.values())
+                  for param in list(prop.params.values())]
+        comps = list(self.comps.values())
+        dvs = list(self.dvs.values())
 
         vecs = self._vecs
         vecs['dv'] = PGMvec('dv', dvs, [])
@@ -258,7 +258,7 @@ class PGMconfiguration(object):
         """
         surf_index = 0
         surfs_list = []
-        for comp in self.comps.values():
+        for comp in list(self.comps.values()):
             surf_index = comp.initialize_bse(surfs_list, surf_index)
 
         self._bse = BSEmodel(surfs_list)
@@ -365,5 +365,5 @@ class PGMconfiguration(object):
         return Das, Dis, Djs
 
     def compute_normals(self):
-        for comp in self.comps.values():
+        for comp in list(self.comps.values()):
             comp.compute_normals()

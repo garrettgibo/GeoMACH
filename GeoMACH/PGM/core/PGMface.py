@@ -3,7 +3,7 @@ GeoMACH face class
 John Hwang, July 2014
 """
 # pylint: disable=E1101
-from __future__ import division
+
 import numpy
 from collections import OrderedDict
 
@@ -90,12 +90,12 @@ class PGMface(PGMobject):
 
     def _get_surf_indices(self, ind_i, ind_j):
         if ind_i is None:
-            ilist = range(self._num_surf['u'])
+            ilist = list(range(self._num_surf['u']))
         else:
             ilist = [ind_i]
 
         if ind_j is None:
-            jlist = range(self._num_surf['v'])
+            jlist = list(range(self._num_surf['v']))
         else:
             jlist = [ind_j]
 

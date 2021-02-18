@@ -3,7 +3,7 @@ GeoMACH interpolant class
 John Hwang, July 2014
 """
 # pylint: disable=E1101
-from __future__ import division
+
 import numpy
 import scipy.sparse
 import time
@@ -43,7 +43,7 @@ class PGMinterpolant(PGMcomponent):
         vals_list, rows_list, cols_list = [], [], []
         if name == 'cp_prim':
 	    #At this step we write the Jacobian that consists of the normals of each control point
-            if len(self.normals) is not 0:
+            if len(self.normals) != 0:
                 for fname in self.faces:
                     face = self.faces[fname]
                     num_u = face._num_cp_total['u']
@@ -66,7 +66,7 @@ class PGMinterpolant(PGMcomponent):
             return vals_list, rows_list, cols_list
         elif name == 'cp_bez' or name == 'cp_coons':
 	    #At these steps we just need to return an identity matrix as Jacobian, just to carry over the normal parameters to the next step
-            for face in self.faces.values():
+            for face in list(self.faces.values()):
                 num_u = face._num_cp_total['u']
                 num_v = face._num_cp_total['v']
 
@@ -79,7 +79,7 @@ class PGMinterpolant(PGMcomponent):
             return vals_list, rows_list, cols_list
 
     def compute_normals(self):
-        for face in self.faces.values():
+        for face in list(self.faces.values()):
             num_u = face._num_cp_total['u']
             num_v = face._num_cp_total['v']
 

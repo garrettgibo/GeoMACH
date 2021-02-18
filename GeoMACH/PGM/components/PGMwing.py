@@ -3,7 +3,7 @@ GeoMACH wing class
 John Hwang, July 2014
 """
 # pylint: disable=E1101
-from __future__ import division
+
 import numpy
 import scipy.sparse, scipy.sparse.linalg
 from collections import OrderedDict
@@ -309,7 +309,7 @@ class WingFunction(object):
                     if loc_surf['u'] == -1 or loc_surf['v'] == -1:
                         raise Exception('Invalid thickness constraint locations')
                     ind = 0 if f=='upp' else 1
-                    surf[f][i,j] = self.comp.faces.values()[ind]._surf_indices[loc_surf['u'], loc_surf['v']]
+                    surf[f][i,j] = list(self.comp.faces.values())[ind]._surf_indices[loc_surf['u'], loc_surf['v']]
 
         surf_flat = numpy.zeros(2*ni*nj)
         locs_u_flat = numpy.zeros(2*ni*nj)

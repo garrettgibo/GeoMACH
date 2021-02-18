@@ -3,7 +3,7 @@ GeoMACH primitive class
 John Hwang, July 2014
 """
 # pylint: disable=E1101
-from __future__ import division
+
 import numpy
 import scipy.sparse
 import time
@@ -39,7 +39,7 @@ class PGMprimitive(PGMcomponent):
         super(PGMprimitive, self).assemble_sizes(bse)
 
         num = 0
-        for val in self.faces.values():
+        for val in list(self.faces.values()):
             num = val._num_cp_total['v']
             break
 
@@ -103,7 +103,7 @@ class PGMprimitive(PGMcomponent):
 
         elif name == 'cp_bez' or name == 'cp_coons':
             vals_list, rows_list, cols_list = [], [], []
-            for face in self.faces.values():
+            for face in list(self.faces.values()):
                 num_u = face._num_cp_total['u']
                 num_v = face._num_cp_total['v']
 

@@ -1,8 +1,8 @@
-from __future__ import division
+
 import numpy
 import pylab
 from mpl_toolkits.mplot3d import axes3d
-from BSEmodel import BSEmodel
+from .BSEmodel import BSEmodel
 
 
 def face(nu, nv, ru, rv, du, dv, d):
@@ -55,7 +55,7 @@ pts0 = numpy.array([
 surf.compute_projection('test', pts0, ndim=3)
 surf.apply_jacobian('test', 'd(test)/d(cp_str)', 'cp_str')
 pts = numpy.array(surf.vec['test'].array)
-print pts
+print(pts)
 #surf.vec['df'].export_tec_scatter()
 surf.vec['pt_str'].export_tec_str()
 #surf.vec['pt_str'].export_STL()

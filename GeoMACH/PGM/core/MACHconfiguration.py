@@ -1,4 +1,4 @@
-from __future__ import division
+
 import numpy
 import scipy.sparse
 from collections import OrderedDict
@@ -37,7 +37,7 @@ class MACHconfiguration(PGMconfiguration):
         self.updated[pt_name] = False
 
     def setDesignVars(self, dv_dict):
-        for dv in self.dvs.values():
+        for dv in list(self.dvs.values()):
             dv.data[:] = numpy.array(numpy.atleast_1d(dv_dict[dv.name]).reshape(dv._shape, order='F')).real.astype('D')
 
         for pt_name in self.updated:
@@ -45,7 +45,7 @@ class MACHconfiguration(PGMconfiguration):
 
     def getValues(self):
         dv_dict = {}
-        for dv in self.dvs.values():
+        for dv in list(self.dvs.values()):
             dv_dict[dv.name] = numpy.array(dv.data.reshape(numpy.prod(dv._shape), order='F'))
         return dv_dict
 
@@ -65,7 +65,7 @@ class MACHconfiguration(PGMconfiguration):
 
     def getNDV(self):
         num_dv = 0
-        for dv in self.dvs.values():
+        for dv in list(self.dvs.values()):
             num_dv += numpy.prod(dv._shape)
         return num_dv
 
@@ -116,7 +116,7 @@ class MACHconfiguration(PGMconfiguration):
         dfunc_ddv_dict = {}
 
         start, end = 0, 0
-        for dv in self.dvs.values():
+        for dv in list(self.dvs.values()):
             end += numpy.prod(dv._shape)
             dfunc_ddv_dict[dv.name] = dfunc_ddv[:, start:end]
             start += numpy.prod(dv._shape)
@@ -124,28 +124,28 @@ class MACHconfiguration(PGMconfiguration):
         return dfunc_ddv_dict
 
     def addVariablesPyOpt(self, optProb):
-        for dv in self.dvs.values():
+        for dv in list(self.dvs.values()):
             optProb.addVarGroup(dv.name, numpy.prod(dv._shape), 'c',
                                 value=dv.value, lower=dv.lower, upper=dv.upper,
                                 scale=dv.scale)
 
     def addConstraintsPyOpt(self, optProb):
-        for comp in self.comps.values():
-            for func in comp.funcs.values():
+        for comp in list(self.comps.values()):
+            for func in list(comp.funcs.values()):
                 func.initialize()
 
         funcsSens = {}
         self.evalFunctionsSens(funcsSens)
-        for comp in self.comps.values():
-            for func in comp.funcs.values():
+        for comp in list(self.comps.values()):
+            for func in list(comp.funcs.values()):
                 optProb.addConGroup(func.name, func.size, upper=0,
                                     wrt=[dv_name for dv_name in self.dvs],
                                     jac={dv_name:funcsSens[func.name][dv_name] for dv_name in self.dvs})
 
     def evalFunctions(self, funcs):
         self.compute_all()
-        for comp in self.comps.values():
-            for func in comp.funcs.values():
+        for comp in list(self.comps.values()):
+            for func in list(comp.funcs.values()):
                 funcs[func.name] = func.get_func()
 
     def evalFunctionsSens(self, funcsSens):
@@ -173,13 +173,13 @@ class MACHconfiguration(PGMconfiguration):
             format='csc')
         dcp_ddv = dcp_ddf * ddf_ddv
 
-        for comp in self.comps.values():
-            for func in comp.funcs.values():
+        for comp in list(self.comps.values()):
+            for func in list(comp.funcs.values()):
                 if func.name not in funcsSens:
                     funcsSens[func.name] = {}
 
         start = 0
-        for dv in self.dvs.values():
+        for dv in list(self.dvs.values()):
             size = numpy.prod(dv._shape)
             ones = numpy.ones(size)
             lins = numpy.array(numpy.linspace(0, size-1, size), int)
@@ -187,8 +187,8 @@ class MACHconfiguration(PGMconfiguration):
                                         shape=(num_dv, size))
             # P extracts the columns of the current DV
             start += size
-            for comp in self.comps.values():
-                for func in comp.funcs.values():
+            for comp in list(self.comps.values()):
+                for func in list(comp.funcs.values()):
                     df_dcp = func.get_jacobian()
                     df_ddv = df_dcp * dcp_ddv
                     funcsSens[func.name][dv.name] = (df_ddv * P).todense()

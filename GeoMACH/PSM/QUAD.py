@@ -1,4 +1,4 @@
-from __future__ import division
+
 import numpy
 import time
 import scipy.sparse
@@ -19,20 +19,20 @@ class QUAD(object):
     def importEdges(self, lines):
         self.verts, self.edges = QUADlib.importedges(2*lines.shape[0], lines.shape[0], lines)
         self.edgeCon = numpy.ones(self.edges.shape[0], bool)
-        if self.output: print 'Done: importEdges'
+        if self.output: print('Done: importEdges')
 
     def importVertsNEdges(self, verts, edges):
         self.verts, self.edges = verts, edges
         self.edgeCon = numpy.ones(self.edges.shape[0], bool)
-        if self.output: print 'Done: importVertsNEdges'
+        if self.output: print('Done: importVertsNEdges')
 
     def mesh(self, maxL, lengths, plot=False, output=False):
         def debug():
-            print '# verts:', self.verts.shape[0]
-            print '# edges:', self.edges.shape[0]
-            print '# triangles:', self.triangles.shape[0]
-            print '# quads:', self.quads.shape[0]
-            print self.quads
+            print(('# verts:', self.verts.shape[0]))
+            print(('# edges:', self.edges.shape[0]))
+            print(('# triangles:', self.triangles.shape[0]))
+            print(('# quads:', self.quads.shape[0]))
+            print((self.quads))
             self.plot(111,pv=True,pe=True)
             import pylab
             pylab.show()
@@ -87,59 +87,59 @@ class QUAD(object):
         nedge = self.edges.shape[0]
         nint = QUADlib.countintersectionpts(nvert, nedge, self.verts, self.edges)
         self.verts = QUADlib.addintersectionpts(nvert, nedge, nvert+nint, self.verts, self.edges)
-        if self.output: print 'Done: addIntersectionPts'
+        if self.output: print('Done: addIntersectionPts')
 
     def removeInvalidQuads(self):
         nquad = self.quads.shape[0]
         ninv = QUADlib.countinvalidquads(nquad, self.quads)
         self.quads = QUADlib.removeinvalidquads(nquad, nquad-ninv, self.quads)
-        if self.output: print 'Done: removeInvalidQuads'
+        if self.output: print('Done: removeInvalidQuads')
 
     def removeDegenerateEdges(self):
         nedge = self.edges.shape[0]
         ndeg = QUADlib.countdegenerateedges(nedge, self.edges)
         self.edges = QUADlib.removedegenerateedges(nedge, nedge-ndeg, self.edges)
-        if self.output: print 'Done: removeDegenerateEdges'
+        if self.output: print('Done: removeDegenerateEdges')
 
     def removeDuplicateVerts(self):
         nvert0 = self.verts.shape[0]
         nedge = self.edges.shape[0]
         nvert, ids = QUADlib.computeuniqueverts(nvert0, self.verts)
         self.verts, self.edges = QUADlib.removeduplicateverts(nvert0, nvert, nedge, ids, self.verts, self.edges)
-        if self.output: print 'Done: removeDuplicateVerts'
+        if self.output: print('Done: removeDuplicateVerts')
 
     def splitEdges(self):
         nvert = self.verts.shape[0]
         nedge = self.edges.shape[0]
         nsplit = QUADlib.countsplits(nvert, nedge, self.verts, self.edges)
         self.edges, self.edgeCon = QUADlib.splitedges(nvert, nedge, nedge+nsplit, self.verts, self.edges, self.edgeCon)
-        if self.output: print 'Done: splitEdges'
+        if self.output: print('Done: splitEdges')
 
     def removeDuplicateEdges(self):
         nedge0 = self.edges.shape[0]
         nedge, ids = QUADlib.computeuniqueedges(nedge0, self.edges)
         self.edges, self.edgeCon = QUADlib.removeduplicateedges(nedge0, nedge, ids, self.edges, self.edgeCon)
-        if self.output: print 'Done: removeDuplicateEdges'
+        if self.output: print('Done: removeDuplicateEdges')
 
     def addEdgePts(self):
         nvert = self.verts.shape[0]
         nedge = self.edges.shape[0]
         npts = QUADlib.countedgepts(nvert, nedge, self.maxL, self.lengths, self.verts, self.edges)
         self.verts = QUADlib.addedgepts(nvert, nedge, nvert+npts, self.maxL, self.lengths, self.verts, self.edges)
-        if self.output: print 'Done: addEdgePts'
+        if self.output: print('Done: addEdgePts')
 
     def addInteriorPts(self):
         nvert = self.verts.shape[0]
         nedge = self.edges.shape[0]
         npts = QUADlib.countinteriorpts(self.maxL, self.lengths)
         self.verts = QUADlib.addinteriorpts(nvert, nvert+npts, self.maxL, self.lengths, self.verts)
-        if self.output: print 'Done: addInteriorPts'
+        if self.output: print('Done: addInteriorPts')
 
     def reorderCollinear(self):
         nvert = self.verts.shape[0]
         nedge = self.edges.shape[0]
         self.verts, self.edges = QUADlib.reordercollinear(nvert, nedge, self.verts, self.edges)
-        if self.output: print 'Done: reorderCollinear'
+        if self.output: print('Done: reorderCollinear')
 
     def computeCDT(self):
         nvert = self.verts.shape[0]
@@ -147,19 +147,19 @@ class QUAD(object):
         ntri, triangles = CDTlib.computecdt(nvert, nedge, 2*nvert-5, self.verts, self.edges)
         self.edges = QUADlib.importtriangles(2*nvert-5, ntri, 3*ntri, triangles)
         self.edgeCon = numpy.ones(self.edges.shape[0], bool)
-        if self.output: print 'Done: computeCDT'
+        if self.output: print('Done: computeCDT')
 
     def computeConstrainedEdges(self):
         nedge = self.edges.shape[0]
         nedge0 = self.edges0.shape[0]
         self.edgeCon = QUADlib.computeconstrainededges(nedge0, nedge, self.edges0, self.edges)
-        if self.output: print 'Done: computeConstrainedEdges'
+        if self.output: print('Done: computeConstrainedEdges')
 
     def computeAdjMap(self):
         nvert = self.verts.shape[0]
         nedge = self.edges.shape[0]
         self.adjPtr, self.adjMap = QUADlib.computeadjmap(nvert, nedge, 2*nedge, self.edges)
-        if self.output: print 'Done: computeAdjMap'
+        if self.output: print('Done: computeAdjMap')
 
     def computeTriangles(self):
         nvert = self.verts.shape[0]
@@ -171,7 +171,7 @@ class QUAD(object):
         self.triangles = QUADlib.removeduplicatetriangles(6*ntri, ntri, self.triangles)
         QUADlib.rotatetriangles(nvert, ntri, self.verts, self.triangles)
         self.edge2tri, self.tri2edge = QUADlib.computetri2edge(nedge, ntri, self.edges, self.triangles)
-        if self.output: print 'Done: computeTriangles'
+        if self.output: print('Done: computeTriangles')
 
     def computeQuadDominant(self):
         nvert = self.verts.shape[0]
@@ -179,7 +179,7 @@ class QUAD(object):
         ntri = self.triangles.shape[0]
         nrem, removeEdge, removeTri = QUADlib.computequaddominant(nvert, nedge, ntri, self.verts, self.edges, self.edgeCon, self.triangles, self.tri2edge, self.edge2tri)
         self.edgeCon, self.edges, self.triangles, self.quads = QUADlib.mergetriangles(nedge, ntri, nedge-nrem, ntri-2*nrem+1, nrem+1, self.edgeCon, self.edges, self.triangles, self.edge2tri, removeEdge, removeTri)
-        if self.output: print 'Done: computeQuadDominant'
+        if self.output: print('Done: computeQuadDominant')
 
     def splitTrisNQuads(self):
         nvert = self.verts.shape[0]
@@ -187,7 +187,7 @@ class QUAD(object):
         ntri = self.triangles.shape[0] - 1
         nquad = self.quads.shape[0] - 1
         self.verts, self.edges, self.edgeCon = QUADlib.splittrisnquads(nvert, nedge, ntri+1, nquad+1, nvert+4*ntri+5*nquad, nedge+3*ntri+4*nquad, self.verts, self.edges, self.edgeCon, self.triangles, self.quads)
-        if self.output: print 'Done: splitTrisNQuads'
+        if self.output: print('Done: splitTrisNQuads')
 
     def computeQuads(self):
         nvert = self.verts.shape[0]
@@ -198,20 +198,20 @@ class QUAD(object):
         self.quads = QUADlib.computequads(nvert, nadj, 8*nquad, self.adjPtr, self.adjMap)
         self.quads = QUADlib.removeduplicatequads(8*nquad, nquad, self.quads)
         QUADlib.rotatequads(nvert, nquad, self.verts, self.quads)
-        if self.output: print 'Done: computeQuads'
+        if self.output: print('Done: computeQuads')
 
     def computeQuad2Edge(self):
         nvert = self.verts.shape[0]
         nedge = self.edges.shape[0]
         nquad = self.quads.shape[0]
         self.quad2edge = QUADlib.computequad2edge(nedge, nquad, self.edges, self.quads)
-        if self.output: print 'Done: computeQuad2Edge'
+        if self.output: print('Done: computeQuad2Edge')
 
     def computeConstrainedVerts(self):
         nvert = self.verts.shape[0]
         nedge = self.edges.shape[0]
         self.vertCon = QUADlib.computeconstrainedverts(nvert, nedge, self.edges, self.edgeCon)
-        if self.output: print 'Done: computeConstrainedVerts'
+        if self.output: print('Done: computeConstrainedVerts')
 
     def smooth1(self):
         nvert = self.verts.shape[0]
@@ -229,7 +229,7 @@ class QUAD(object):
         sol = scipy.sparse.linalg.factorized(A)
         for i in range(2):
             self.verts[:,i] = sol(B[:,i])[:nvert]
-        if self.output: print 'Done: smooth1'
+        if self.output: print('Done: smooth1')
 
     def smooth2(self):
         nvert = self.verts.shape[0]
@@ -247,7 +247,7 @@ class QUAD(object):
         sol = scipy.sparse.linalg.factorized(A)
         for i in range(2):
             self.verts[:,i] = sol(B[:,i])[:nvert]
-        if self.output: print 'Done: smooth2'
+        if self.output: print('Done: smooth2')
 
     def plot(self, plot, pv=False, pe=False, pt=False, pq=False, pv2=False, pe2=False):
         import pylab

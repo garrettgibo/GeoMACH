@@ -1,4 +1,4 @@
-from __future__ import division
+
 import numpy
 
 
@@ -90,7 +90,7 @@ def writeBDF(filename, nodes, quads, symm, quad_groups, group_names,
         q = quads[i,:]
         if q[0]==q[1] or q[0]==q[2] or q[0]==q[3] or \
            q[1]==q[2] or q[1]==q[3] or q[2]==q[3]:
-            print 'invalid quad', q, group_names[quad_groups[i]], quad_groups[i]
+            print(('invalid quad', q, group_names[quad_groups[i]], quad_groups[i]))
 
         imem = quad_groups[i]
         uv_selector = imem == new_mem

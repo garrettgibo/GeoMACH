@@ -3,7 +3,7 @@ GeoMACH body class
 John Hwang, July 2014
 """
 # pylint: disable=E1101
-from __future__ import division
+
 import numpy
 import scipy.sparse
 import time
@@ -43,7 +43,7 @@ class PGMbody(PGMprimitive):
         self.faces['bot'] = PGMface(num_z, num_x)
 
     def set_diff(self):
-        for face in self.faces.values():
+        for face in list(self.faces.values()):
             face.set_diff_surf(True)
 
     def compute(self, name):

@@ -3,7 +3,7 @@ GeoMACH PGM object class
 John Hwang, July 2014
 """
 # pylint: disable=E1101
-from __future__ import division
+
 import numpy
 import scipy.sparse
 

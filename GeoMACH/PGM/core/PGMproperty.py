@@ -3,7 +3,7 @@ GeoMACH property class
 John Hwang, July 2014
 """
 # pylint: disable=E1101
-from __future__ import division
+
 import numpy
 import scipy.sparse
 import time
@@ -24,7 +24,7 @@ class PGMproperty(PGMobject):
         self._num_pt['u'] = num_u
         self._num_pt['v'] = num_v
 
-        for param in self.params.values():
+        for param in list(self.params.values()):
             param.assemble_sizes(self, num_u, num_v)
 
         self._shape = (num_u, num_v)

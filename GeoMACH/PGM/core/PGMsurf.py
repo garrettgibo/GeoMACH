@@ -3,7 +3,7 @@ GeoMACH surface class
 John Hwang, July 2014
 """
 # pylint: disable=E1101
-from __future__ import division
+
 import numpy
 
 from GeoMACH.PGM.core.PGMobject import PGMobject

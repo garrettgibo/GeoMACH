@@ -3,7 +3,7 @@ GeoMACH component class
 John Hwang, July 2014
 """
 # pylint: disable=E1101
-from __future__ import division
+
 import numpy
 from collections import OrderedDict
 
@@ -59,7 +59,7 @@ class PGMcomponent(object):
            BSE model instance of parent configuration object.
            The value is ``None`` the first time this method is called. 
         """
-        for face in self.faces.values():
+        for face in list(self.faces.values()):
             face.assemble_sizes(bse)
 
     def initialize_bse(self, surfs_list, surf_index):
@@ -79,7 +79,7 @@ class PGMcomponent(object):
         **surf_index** : ``int``
            Next available after indices have been assigned
         """
-        for face in self.faces.values():
+        for face in list(self.faces.values()):
             surf_index = face.initialize_bse(surfs_list, surf_index)
         return surf_index
 

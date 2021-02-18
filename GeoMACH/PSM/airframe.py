@@ -1,11 +1,11 @@
-from __future__ import division
+
 import numpy
 import time
 import scipy.sparse
 from collections import OrderedDict
 
 from GeoMACH.PSM import PSMlib, QUADlib, CDTlib
-from QUAD import QUAD
+from .QUAD import QUAD
 
 
 class Airframe(object):
@@ -22,21 +22,21 @@ class Airframe(object):
         self.memberNames.append(name)
 
     def addVertFlip(self, name, comp, p1, p2, w=[1,0], i=[0,1]):
-        index = self.geometry.comps.keys().index
+        index = list(self.geometry.comps.keys()).index
         self.addMember(name,[
                 [[index(comp),i[0],0], [w[0],p1[0],p1[1]], [w[0],p2[0],p2[1]], [w[1],p1[0],p1[1]], [w[1],p2[0],p2[1]]],
                 [[index(comp),i[1],0], [1-w[0],1-p1[0],p1[1]], [1-w[0],1-p2[0],p2[1]], [1-w[1],1-p1[0],p1[1]], [1-w[1],1-p2[0],p2[1]]],
                 ])
 
     def addVert(self, name, comp, p1, p2, w=[1,0], i=[0,1]):
-        index = self.geometry.comps.keys().index
+        index = list(self.geometry.comps.keys()).index
         self.addMember(name,[
                 [[index(comp),i[0],0], [w[0],p1[0],p1[1]], [w[0],p2[0],p2[1]], [w[1],p1[0],p1[1]], [w[1],p2[0],p2[1]]],
                 [[index(comp),i[1],0], [1-w[0],p1[0],p1[1]], [1-w[0],p2[0],p2[1]], [1-w[1],p1[0],p1[1]], [1-w[1],p2[0],p2[1]]],
                 ])
 
     def addCtrVert(self, name, comp1, comp2, p, w=[1,0]):
-        index = self.geometry.comps.keys().index
+        index = list(self.geometry.comps.keys()).index
         self.addMember(name,[
                 [[index(comp1), 0,0], [w[0],p,0.0], [w[1],p,0.0], [0.0,p,0.0], [0.0,p,0.0]],
                 [[index(comp1), 1,0], [1-w[0],1-p,0.0], [1-w[1],1-p,0.0], [0.0,1-p,0.0], [0.0,1-p,0.0]],
@@ -45,7 +45,7 @@ class Airframe(object):
                 ])
 
     def addCtr(self, name, comp1, comp2, i, p):
-        index = self.geometry.comps.keys().index
+        index = list(self.geometry.comps.keys()).index
         self.addMember(name,[
                 [[index(comp1), i,0], [1,p[0],0.0], [1,p[1],0.0], [0,p[0],0.0], [0,p[1],0.0]],
                 [[index(comp2), i,0], [0,p[0],1.0], [0,p[1],1.0], [1,p[0],1.0], [1,p[1],1.0]],
@@ -172,7 +172,7 @@ class Airframe(object):
 
         self.write2TecFEquads('test.dat',[['test',nodes,quads]])
 
-        import BDFwriter
+        from . import BDFwriter
         BDFwriter.writeBDF(filename+'.bdf',nodes,quads,symm,quad_groups,group_names,
                            new_mem, new_nodes, new_ucoord, new_vcoord)
 
@@ -212,8 +212,8 @@ class Airframe(object):
 
         groupLengths = numpy.zeros(ngroup)
         groupCount = numpy.zeros(ngroup,int)
-        for comp in geometry.comps.values():
-            for face in comp.faces.values():
+        for comp in list(geometry.comps.values()):
+            for face in list(comp.faces.values()):
                 ni, nj = face._num_surf['u'], face._num_surf['v']
                 surf_indices = face._surf_indices
                 groupLengths[:], groupCount[:] = PSMlib.addgrouplengths(ni, nj, nsurf, nedge, ngroup, surf_indices+1, surf_edge, edge_group, self.surfEdgeLengths, groupLengths, groupCount)
@@ -221,9 +221,9 @@ class Airframe(object):
         groupLengths = groupLengths / groupCount
                  
         faceDims = OrderedDict()
-        for comp in geometry.comps.values():
+        for comp in list(geometry.comps.values()):
             faceDimsComp = OrderedDict()
-            for face in comp.faces.values():
+            for face in list(comp.faces.values()):
                 ni, nj = face._num_surf['u'], face._num_surf['v']
                 surf_indices = face._surf_indices
                 idims, jdims = PSMlib.computefacedimensions(ni, nj, nsurf, nedge, ngroup, surf_indices+1, surf_edge, edge_group, groupLengths)
@@ -237,17 +237,17 @@ class Airframe(object):
         nsurf = bse._num['surf']
 
         faceDims = {}    
-        for comp in geometry.comps.values():
+        for comp in list(geometry.comps.values()):
             faceDimsComp = []
-            jdim0 = numpy.zeros(comp.faces.values()[0]._num_surf['v']+1)
-            for face in comp.faces.values():
+            jdim0 = numpy.zeros(list(comp.faces.values())[0]._num_surf['v']+1)
+            for face in list(comp.faces.values()):
                 ni, nj = face._num_surf['u'], face._num_surf['v']
                 surf_indices = face._surf_indices
                 idims, jdims = PSMlib.computefacedimensions0(ni,nj,nsurf,surf_indices+1,self.surfEdgeLengths)
                 jdim0 += jdims
                 faceDimsComp[face._name] = [idims,jdims]
             jdim0 /= len(comp.faces)
-            for face in comp.faces.values():
+            for face in list(comp.faces.values()):
                 faceDimsComp[face._name][1][:] = jdim0[:]
             faceDims[comp._name] = faceDimsComp
 
@@ -260,13 +260,13 @@ class Airframe(object):
         nmem = self.nmem
 
         for imem in range(nmem):
-            if len(self.members[imem]) is 2:
+            if len(self.members[imem]) != 2:
                 self.members[imem].extend([[[-1,-1,-1] for j in range(5)] for i in range(2)])
         members = numpy.array(self.members, order='F')
         membersInt, membersFlt = PSMlib.importmembers(nmem, members)
 
-        for comp in geometry.comps.values():
-            for face in comp.faces.values():
+        for comp in list(geometry.comps.values()):
+            for face in list(comp.faces.values()):
                 ni, nj = face._num_surf['u'], face._num_surf['v']
                 surf_indices = face._surf_indices
                 idims, jdims = self.faceDims[comp._name][face._name]
@@ -289,7 +289,7 @@ class Airframe(object):
             W = scipy.sparse.csr_matrix((Wa[:,src],(linW,linW)))
             for surf in range(nsurf):
                 npts = PSMlib.countpreviewmembers(surf+1, src+1, nmem, self.membersFlt)
-                if npts is not 0:
+                if npts != 0:
                     inds, P, Q = PSMlib.computepreviewmemberproj(surf+1, src+1, nmem, npts, self.membersFlt)
                     Ta = numpy.ones(npts)
                     Ti = inds - 1
@@ -357,8 +357,8 @@ class Airframe(object):
 
         premeshFaces = []
         groupIntCount = numpy.zeros(ngroup,int)
-        for comp in geometry.comps.values():
-            for face in comp.faces.values():
+        for comp in list(geometry.comps.values()):
+            for face in list(comp.faces.values()):
                 ni, nj = face._num_surf['u'], face._num_surf['v']
                 surf_indices = face._surf_indices
                 idims, jdims = self.faceDims[comp._name][face._name]
@@ -378,8 +378,8 @@ class Airframe(object):
 
         iList = 0
         groupInts = numpy.zeros(nint)
-        for comp in geometry.comps.values():
-            for face in comp.faces.values():
+        for comp in list(geometry.comps.values()):
+            for face in list(comp.faces.values()):
                 verts,edges,edge_group,edgeLengths = premeshFaces[iList]
                 iList += 1
                 groupInts = PSMlib.computegroupintersections(verts.shape[0], edges.shape[0], ngroup, nint, verts, edges, edge_group, groupIntPtr, groupInts)
@@ -410,8 +410,8 @@ class Airframe(object):
         nsplit = groupSplitPtr[-1,-1]
 
         iList = 0
-        for comp in geometry.comps.values():
-            for face in comp.faces.values():
+        for comp in list(geometry.comps.values()):
+            for face in list(comp.faces.values()):
                 verts,edges,edge_group,edgeLengths = premeshFaces[iList]
                 nvert = PSMlib.countintersectionverts(edges.shape[0], ngroup, edge_group, groupIntPtr, groupSplitPtr)
                 verts = PSMlib.computeintersectionverts(verts.shape[0], edges.shape[0], ngroup, nint, nsplit, nvert + verts.shape[0], verts, edges, edge_group, groupIntPtr, groupInts, groupSplitPtr, groupSplits)
@@ -438,15 +438,15 @@ class Airframe(object):
         vcoord0 = []
         iList = 0
         imem = 0
-        for comp in geometry.comps.values():
-            for face in comp.faces.values():
+        for comp in list(geometry.comps.values()):
+            for face in list(comp.faces.values()):
                 verts,edges,edge_group,edgeLengths = premeshFaces[iList]
                 iList += 1
                 nvert = verts.shape[0]
                 nedge = edges.shape[0]
                 ni, nj = face._num_surf['u'], face._num_surf['v']
                 idims, jdims = self.faceDims[comp._name][face._name]
-                print 'Computing skin elements:', comp._name, face._name
+                print(('Computing skin elements:', comp._name, face._name))
                 for i in range(ni):
                     for j in range(nj):
                         surf = face._surf_indices[i,j]
@@ -454,7 +454,7 @@ class Airframe(object):
                             nedge1 = PSMlib.countsurfaceedges(nvert, nedge, idims[i], idims[i+1], jdims[j], jdims[j+1], verts, edges)
                             edges1 = PSMlib.computesurfaceedges(nvert, nedge, nedge1, idims[i], idims[i+1], jdims[j], jdims[j+1], verts, edges)
 
-                            print comp._name, face._name, i, j
+                            print((comp._name, face._name, i, j))
                             quad.importEdges(edges1)
 
                             output = False
@@ -519,7 +519,7 @@ class Airframe(object):
         ucoord0 = []
         vcoord0 = []
         for imem in range(nmem):
-            print 'Computing internal members:', self.memberNames[imem]
+            print(('Computing internal members:', self.memberNames[imem]))
             edges, edge_group = PSMlib.computememberedges(imem+1, nmem, self.mem_group)
             quad.importEdges(edges)
             verts, edges = quad.verts, quad.edges
@@ -541,8 +541,8 @@ class Airframe(object):
         nodesFlt = numpy.array(numpy.vstack(nodesFlt0),order='F')
         nnode = nodesInt.shape[0]
 
-        for comp in geometry.comps.values():
-            for face in comp.faces.values():
+        for comp in list(geometry.comps.values()):
+            for face in list(comp.faces.values()):
                 ni, nj = face._num_surf['u'], face._num_surf['v']
                 surf_indices = face._surf_indices
                 idims, jdims = self.faceDims[comp._name][face._name]
@@ -554,7 +554,7 @@ class Airframe(object):
             W = scipy.sparse.csr_matrix((nodesFlt[:,src,0],(linW,linW)))
             for surf in range(nsurf):
                 npts = PSMlib.countmembers(surf+1, src+1, nnode, nodesInt)
-                if npts is not 0:
+                if npts != 0:
                     inds, P, Q = PSMlib.computememberproj(surf+1, src+1, nnode, npts, nodesInt, nodesFlt)
                     Ta = numpy.ones(npts)
                     Ti = inds - 1
